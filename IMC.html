@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <!-- Meta tag essencial para responsividade em dispositivos móveis -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadoras de Saúde - DevOps</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            text-align: center; 
+            margin: 0;
+            padding: 20px 10px; /* Margem interna para telas pequenas */
+            background-color: rgb(249, 250, 246);
+        }
+        .container { 
+            display: inline-block; 
+            padding: 20px; 
+            border: 1px solid #ccc; 
+            border-radius: 10px; 
+            background-color: #ffffff; 
+            width: 100%; 
+            max-width: 400px; /* Limita o crescimento em telas de computador */
+            box-sizing: border-box; /* Garante que o padding não quebre a largura */
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); 
+        }
+        
+        /* Ajuste para inputs, selects e botões ocuparem toda a largura no mobile */
+        input, select, button { 
+            width: 100%; 
+            margin: 10px 0; /* Espaçamento vertical */
+            padding: 12px; /* Área de toque maior para o celular */
+            font-size: 16px; 
+            box-sizing: border-box; /* Inclui o padding na largura total */
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            display: block; /* Força os elementos a quebrarem linha e empilharem */
+        }
+        
+        /* Estilo do botão principal (Calcular) */
+        .btn-calcular {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            font-weight: bold;
+        }
+        .btn-calcular:hover {
+            background-color: #0056b3;
+        }
+        .btn-calcular:active {
+            transform: scale(0.98); 
+        }
+
+        /* Estilo do botão secundário (Limpar) */
+        .btn-limpar {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            font-weight: bold;
+        }
+        .btn-limpar:hover {
+            background-color: #d32f2f;
+        }
+        .btn-limpar:active {
+            transform: scale(0.98);
+        }
+
+        footer {
+            margin-top: 40px;
+            padding: 20px;
+            font-size: 14px;
+            color: #333;
+        }
+        #calc-rcq {
+            display: none;
+        }
+        
+        /* Cores dinâmicas para os resultados */
+        .risco-baixo, .imc-normal { color: green; font-weight: bold; }
+        .risco-moderado, .imc-alerta { color: orange; font-weight: bold; }
+        .risco-alto, .imc-perigo { color: red; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Bem-vindo(a) ao portal de Saúde!</h2>
+        <p>Selecione a calculadora:</p>
+
+        <select id="seletorCalculadora">
+            <option value="imc">Calculadora de IMC</option>
+            <option value="rcq">Calculadora de Cintura/Quadril (RCQ)</option>
+        </select>
+        
+        <hr>
+
+        <div id="calc-imc">
+            <h1>Verifique seu IMC</h1>
+            <input type="number" id="peso" placeholder="Peso (kg)" step="0.1">
+            <input type="number" id="altura" placeholder="Altura (m)" step="0.01">
+            <button onclick="exibirIMC()" class="btn-calcular">Calcular IMC</button>
+            <button onclick="limparIMC()" class="btn-limpar">Limpar Dados</button>
+            <h2 id="resultado-imc"></h2>
+            <p id="mensagem-imc"></p>
+        </div>
+
+        <div id="calc-rcq">
+            <h1>Verifique sua RCQ</h1>
+            <select id="sexo-rcq">
+                <option value="masculino">Masculino</option>
+                <option value="feminino">Feminino</option>
+            </select>
+            <input type="number" id="cintura" placeholder="Cintura (cm)" step="0.1">
+            <input type="number" id="quadril" placeholder="Quadril (cm)" step="0.1">
+            <button onclick="exibirRCQ()" class="btn-calcular">Calcular RCQ</button>
+            <button onclick="limparRCQ()" class="btn-limpar">Limpar Dados</button>
+            <h2 id="resultado-rcq"></h2>
+            <p id="mensagem-risco"></p>
+        </div>
+        
+    </div>
+
+    <footer>
+        <p>&copy; Desenvolvido por <a href="https://www.linkedin.com/in/gabriel-ribeirodesousa/" target="_blank" rel="noopener noreferrer">Gabriel Ribeiro</a>. Desenvolvido para facilitar o seu dia a dia.</p>
+    </footer>
+
+    <script>
+        document.getElementById('seletorCalculadora').addEventListener('change', function() {
+            const opcao = this.value;
+            const divImc = document.getElementById('calc-imc');
+            const divRcq = document.getElementById('calc-rcq');
+            
+            limparIMC();
+            limparRCQ();
+
+            if (opcao === 'imc') {
+                divImc.style.display = 'block';
+                divRcq.style.display = 'none';
+            } else if (opcao === 'rcq') {
+                divImc.style.display = 'none';
+                divRcq.style.display = 'block';
+            }
+        });
+
+        function limparIMC() {
+            document.getElementById('peso').value = "";
+            document.getElementById('altura').value = "";
+            document.getElementById('resultado-imc').innerText = "";
+            document.getElementById('mensagem-imc').innerText = "";
+            document.getElementById('mensagem-imc').className = "";
+        }
+
+        function limparRCQ() {
+            document.getElementById('cintura').value = "";
+            document.getElementById('quadril').value = "";
+            document.getElementById('sexo-rcq').value = "masculino";
+            document.getElementById('resultado-rcq').innerText = "";
+            document.getElementById('mensagem-risco').innerText = "";
+            document.getElementById('mensagem-risco').className = "";
+        }
+
+        function exibirIMC() {
+            let peso = parseFloat(document.getElementById('peso').value);
+            let altura = parseFloat(document.getElementById('altura').value);
+            
+            if (!peso || !altura) {
+                document.getElementById('resultado-imc').innerText = "Por favor, preencha ambos os campos.";
+                document.getElementById('mensagem-imc').innerText = "";
+                return;
+            }
+
+            let imc;
+            if (typeof calcularIMC === 'function') {
+                imc = calcularIMC(peso, altura);
+            } else {
+                imc = (peso / (altura * altura)).toFixed(2);
+            }
+
+            document.getElementById('resultado-imc').innerText = "Seu IMC é: " + imc;
+
+            let mensagem = "";
+            let classeCSS = "";
+
+            if (imc < 18.5) {
+                mensagem = "Classificação: Abaixo do peso";
+                classeCSS = "imc-alerta";
+            } else if (imc >= 18.5 && imc <= 24.9) {
+                mensagem = "Classificação: Peso normal";
+                classeCSS = "imc-normal";
+            } else if (imc >= 25 && imc <= 29.9) {
+                mensagem = "Classificação: Sobrepeso";
+                classeCSS = "imc-alerta";
+            } else if (imc >= 30 && imc <= 34.9) {
+                mensagem = "Classificação: Obesidade Grau I";
+                classeCSS = "imc-perigo";
+            } else if (imc >= 35 && imc <= 39.9) {
+                mensagem = "Classificação: Obesidade Grau II";
+                classeCSS = "imc-perigo";
+            } else {
+                mensagem = "Classificação: Obesidade Grau III (Mórbida)";
+                classeCSS = "imc-perigo";
+            }
+
+            let elMensagemImc = document.getElementById('mensagem-imc');
+            elMensagemImc.innerText = mensagem;
+            elMensagemImc.className = classeCSS;
+        }
+
+        function exibirRCQ() {
+            let cintura = parseFloat(document.getElementById('cintura').value);
+            let quadril = parseFloat(document.getElementById('quadril').value);
+            let sexo = document.getElementById('sexo-rcq').value;
+            
+            if (!cintura || !quadril || quadril === 0) {
+                document.getElementById('resultado-rcq').innerText = "Por favor, insira valores válidos.";
+                document.getElementById('mensagem-risco').innerText = "";
+                return;
+            }
+
+            let rcq = (cintura / quadril).toFixed(2);
+            document.getElementById('resultado-rcq').innerText = "Sua RCQ é: " + rcq;
+
+            let mensagem = "";
+            let classeCSS = "";
+
+            if (sexo === 'masculino') {
+                if (rcq < 0.90) {
+                    mensagem = "Baixo risco para doenças cardiovasculares.";
+                    classeCSS = "risco-baixo";
+                } else if (rcq >= 0.90 && rcq <= 0.99) {
+                    mensagem = "Risco moderado para doenças cardiovasculares.";
+                    classeCSS = "risco-moderado";
+                } else {
+                    mensagem = "Alto risco para doenças cardiovasculares.";
+                    classeCSS = "risco-alto";
+                }
+            } else if (sexo === 'feminino') {
+                if (rcq < 0.80) {
+                    mensagem = "Baixo risco para doenças cardiovasculares.";
+                    classeCSS = "risco-baixo";
+                } else if (rcq >= 0.80 && rcq <= 0.84) {
+                    mensagem = "Risco moderado para doenças cardiovasculares.";
+                    classeCSS = "risco-moderado";
+                } else {
+                    mensagem = "Alto risco para doenças cardiovasculares.";
+                    classeCSS = "risco-alto";
+                }
+            }
+
+            let elMensagem = document.getElementById('mensagem-risco');
+            elMensagem.innerText = mensagem;
+            elMensagem.className = classeCSS;
+        }
+    </script>
+</body>
+</html>
